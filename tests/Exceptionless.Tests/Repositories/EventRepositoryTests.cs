@@ -50,7 +50,7 @@ namespace Exceptionless.Tests.Repositories {
         [Fact(Skip="Performance Testing")]
         public async Task GetAsyncPerformanceAsync() {
             var ev = await _repository.AddAsync(new RandomEventGenerator().GeneratePersistent());
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.Equal(1, await _repository.CountAsync());
 
             var sw = Stopwatch.StartNew();
@@ -70,7 +70,7 @@ namespace Exceptionless.Tests.Repositories {
                 events.Add(EventData.GenerateEvent(projectId: TestConstants.ProjectId, organizationId: TestConstants.OrganizationId, stackId: TestConstants.StackId, occurrenceDate: SystemClock.UtcNow.Subtract(TimeSpan.FromMinutes(i))));
 
             await _repository.AddAsync(events);
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.Equal(events.Count, await _repository.CountAsync());
 
             var results = await _repository.GetByOrganizationIdAsync(TestConstants.OrganizationId, o => o.PageNumber(2).PageLimit(2));
@@ -100,7 +100,7 @@ namespace Exceptionless.Tests.Repositories {
 
             _logger.LogDebug("");
             _logger.LogDebug("Tests:");
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.Equal(_ids.Count, await _repository.CountAsync());
             for (int i = 0; i < sortedIds.Count; i++) {
                 _logger.LogDebug("Current - {Id}: {Date}", sortedIds[i].Item1, sortedIds[i].Item2.ToLongTimeString());
@@ -127,7 +127,7 @@ namespace Exceptionless.Tests.Repositories {
 
             _logger.LogDebug("");
             _logger.LogDebug("Tests:");
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.Equal(_ids.Count, await _repository.CountAsync());
             for (int i = 0; i < sortedIds.Count; i++) {
                 _logger.LogDebug("Current - {Id}: {Date}", sortedIds[i].Item1, sortedIds[i].Item2.ToLongTimeString());
@@ -144,7 +144,7 @@ namespace Exceptionless.Tests.Repositories {
             string referenceId = ObjectId.GenerateNewId().ToString();
             await _repository.AddAsync(EventData.GenerateEvents(3, TestConstants.OrganizationId, TestConstants.ProjectId, TestConstants.StackId2, referenceId: referenceId).ToList());
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             var results = await _repository.GetByReferenceIdAsync(TestConstants.ProjectId, referenceId);
             Assert.True(results.Total > 0);
             Assert.NotNull(results.Documents.First());
@@ -172,7 +172,7 @@ namespace Exceptionless.Tests.Repositories {
 
             await _repository.AddAsync(events);
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             var results = await _repository.GetOpenSessionsAsync(SystemClock.UtcNow.SubtractMinutes(30));
             Assert.Equal(3, results.Total);
         }
@@ -182,18 +182,18 @@ namespace Exceptionless.Tests.Repositories {
             const int NUMBER_OF_EVENTS_TO_CREATE = 10000;
             await _repository.AddAsync(EventData.GenerateEvents(NUMBER_OF_EVENTS_TO_CREATE, TestConstants.OrganizationId, TestConstants.ProjectId, TestConstants.StackId2).ToList(), o => o.Notifications(false));
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.Equal(NUMBER_OF_EVENTS_TO_CREATE, await _repository.CountAsync());
 
             var sw = Stopwatch.StartNew();
             await _repository.UpdateFixedByStackAsync(TestConstants.OrganizationId, TestConstants.ProjectId, TestConstants.StackId2, false, sendNotifications: false);
             _logger.LogInformation("Time to mark not fixed events as not fixed: {Duration:g}", sw.Elapsed);
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             sw.Restart();
 
             await _repository.UpdateFixedByStackAsync(TestConstants.OrganizationId, TestConstants.ProjectId, TestConstants.StackId2, true, sendNotifications: false);
             _logger.LogInformation("Time to mark not fixed events as fixed: {Duration:g}", sw.Elapsed);
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             sw.Stop();
 
             var results = await GetByFilterAsync($"stack:{TestConstants.StackId2} fixed:true");
@@ -209,7 +209,7 @@ namespace Exceptionless.Tests.Repositories {
             events.ForEach(e => e.AddRequestInfo(new RequestInfo { ClientIpAddress = _clientIpAddress }));
             await _repository.AddAsync(events);
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             events = (await _repository.GetByProjectIdAsync(TestConstants.ProjectId, o => o.PageLimit(NUMBER_OF_EVENTS_TO_CREATE))).Documents.ToList();
             Assert.Equal(NUMBER_OF_EVENTS_TO_CREATE, events.Count);
             events.ForEach(e => {
@@ -221,7 +221,7 @@ namespace Exceptionless.Tests.Repositories {
 
             await _repository.HideAllByClientIpAndDateAsync(TestConstants.OrganizationId, _clientIpAddress, SystemClock.UtcNow.SubtractDays(3), SystemClock.UtcNow.AddDays(2));
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             events = (await _repository.GetByProjectIdAsync(TestConstants.ProjectId, o => o.PageLimit(NUMBER_OF_EVENTS_TO_CREATE))).Documents.ToList();
             Assert.Equal(NUMBER_OF_EVENTS_TO_CREATE, events.Count);
             events.ForEach(e => Assert.True(e.IsHidden));

@@ -43,7 +43,7 @@ namespace Exceptionless.Tests.Services {
             Assert.True(occurrenceSet.IsNull || !occurrenceSet.HasValue || occurrenceSet.Value.Count == 0);
 
             var firstUtcNow = SystemClock.UtcNow.Floor(TimeSpan.FromMilliseconds(1));
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             await _stackService.IncrementStackUsageAsync(TestConstants.OrganizationId, TestConstants.ProjectId, stack.Id, firstUtcNow, firstUtcNow, 1);
 
             // Assert stack state has no change after increment usage
@@ -60,7 +60,7 @@ namespace Exceptionless.Tests.Services {
             Assert.Single(occurrenceSet.Value);
 
             var secondUtcNow = SystemClock.UtcNow.Floor(TimeSpan.FromMilliseconds(1));
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             await _stackService.IncrementStackUsageAsync(TestConstants.OrganizationId, TestConstants.ProjectId, stack.Id, secondUtcNow, secondUtcNow, 2);
 
             // Assert state in cache has been changed after increment usage again

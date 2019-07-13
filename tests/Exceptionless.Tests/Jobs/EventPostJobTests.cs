@@ -74,7 +74,7 @@ namespace Exceptionless.Tests.Jobs {
             Assert.Equal(1, stats.Dequeued);
             Assert.Equal(1, stats.Completed);
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.Equal(1, await _eventRepository.CountAsync());
         }
 

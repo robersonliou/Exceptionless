@@ -195,7 +195,7 @@ namespace Exceptionless.Tests.Repositories {
                 }
             }
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
         }
 
         private Task<FindResults<Stack>> GetByFilterAsync(string filter) {

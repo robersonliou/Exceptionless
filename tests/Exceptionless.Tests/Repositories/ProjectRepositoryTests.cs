@@ -27,13 +27,13 @@ namespace Exceptionless.Tests.Repositories {
             Assert.Equal(0, await _repository.CountAsync());
 
             var project = await _repository.AddAsync(ProjectData.GenerateSampleProject());
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.NotNull(project.Id);
             Assert.Equal(1, await _repository.CountAsync());
             Assert.Equal(1, await _repository.GetCountByOrganizationIdAsync(project.OrganizationId));
 
             await _repository.IncrementNextSummaryEndOfDayTicksAsync(new[] { project });
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
 
             var updatedProject = await _repository.GetByIdAsync(project.Id);
             // TODO: Modified date isn't currently updated in the update scripts.
@@ -46,12 +46,12 @@ namespace Exceptionless.Tests.Repositories {
             var project2 = await _repository.AddAsync(ProjectData.GenerateProject(organizationId: project.OrganizationId));
             Assert.NotNull(project2.Id);
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.Equal(2, await _repository.CountAsync());
             Assert.Equal(2, await _repository.GetCountByOrganizationIdAsync(project.OrganizationId));
 
             await _repository.RemoveAsync(project2, o => o.Notifications(false));
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.Equal(1, await _repository.CountAsync());
             Assert.Equal(1, await _repository.GetCountByOrganizationIdAsync(project.OrganizationId));
         }

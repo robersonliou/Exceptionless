@@ -200,7 +200,7 @@ namespace Exceptionless.Tests.Stats {
 
             var projects = ProjectData.GenerateSampleProjects();
             await _projectRepository.AddAsync(projects, o => o.Cache());
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
 
             if (eventCount > 0)
                 await CreateEventsAsync(eventCount, multipleProjects ? projects.Select(p => p.Id).ToArray() : new[] { TestConstants.ProjectId });
@@ -212,7 +212,7 @@ namespace Exceptionless.Tests.Stats {
                 await _pipeline.RunAsync(eventGroup, OrganizationData.GenerateSampleOrganization(_billingManager, _plans), ProjectData.GenerateSampleProject());
             await _stackService.SaveStackUsagesAsync();
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
         }
 
         private async Task<List<PersistentEvent>> CreateSessionEventsAsync() {
@@ -227,9 +227,9 @@ namespace Exceptionless.Tests.Stats {
             };
 
             await _pipeline.RunAsync(events, OrganizationData.GenerateSampleOrganization(_billingManager, _plans), ProjectData.GenerateSampleProject());
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
 
-            var results = await _eventRepository.GetByFilterAsync(null, null, EventIndexType.Alias.Date, null, DateTime.MinValue, DateTime.MaxValue, null);
+            var results = await _eventRepository.GetByFilterAsync(null, null, EventIndex.Alias.Date, null, DateTime.MinValue, DateTime.MaxValue, null);
             Assert.Equal(6, results.Total);
             Assert.Equal(3, results.Documents.Where(e => !String.IsNullOrEmpty(e.GetSessionId())).Select(e => e.GetSessionId()).Distinct().Count());
 

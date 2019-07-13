@@ -75,7 +75,7 @@ namespace Exceptionless.Tests {
         
         protected Task RefreshData(Indices indices = null) {
             var configuration = GetService<ExceptionlessElasticConfiguration>();
-            return configuration.Client.RefreshAsync(indices ?? Indices.All);
+            return configuration.Client.Indices.RefreshAsync(indices ?? Indices.All);
         }
         
         protected async Task<HttpResponseMessage> SendRequest(Action<AppSendBuilder> configure) {

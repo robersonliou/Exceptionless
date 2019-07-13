@@ -45,7 +45,7 @@ namespace Exceptionless.Tests.Repositories {
         public async Task CanGetByFixedAsync() {
             var stack = await _repository.AddAsync(StackData.GenerateStack(id: TestConstants.StackId, projectId: TestConstants.ProjectId, organizationId: TestConstants.OrganizationId));
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             var results = await _repository.GetByFilterAsync(null, "fixed:true", null, null, DateTime.MinValue, DateTime.MaxValue);
             Assert.NotNull(results);
             Assert.Equal(0, results.Total);
@@ -58,7 +58,7 @@ namespace Exceptionless.Tests.Repositories {
 
             stack.MarkFixed();
             await _repository.SaveAsync(stack);
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
 
             results = await _repository.GetByFilterAsync(null, "fixed:true", null, null, DateTime.MinValue, DateTime.MaxValue);
             Assert.NotNull(results);
@@ -80,7 +80,7 @@ namespace Exceptionless.Tests.Repositories {
             Assert.False(stack.IsRegressed);
             Assert.NotNull(stack.DateFixed);
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             await _repository.MarkAsRegressedAsync(TestConstants.StackId);
 
             stack = await _repository.GetByIdAsync(TestConstants.StackId);
@@ -100,7 +100,7 @@ namespace Exceptionless.Tests.Repositories {
             Assert.Equal(DateTime.MinValue, stack.LastOccurrence);
 
             var utcNow = SystemClock.UtcNow;
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             await _repository.IncrementEventCounterAsync(TestConstants.OrganizationId, TestConstants.ProjectId, TestConstants.StackId, utcNow, utcNow, 1);
 
             stack = await _repository.GetByIdAsync(TestConstants.StackId);
@@ -108,7 +108,7 @@ namespace Exceptionless.Tests.Repositories {
             Assert.Equal(utcNow, stack.FirstOccurrence);
             Assert.Equal(utcNow, stack.LastOccurrence);
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             await _repository.IncrementEventCounterAsync(TestConstants.OrganizationId, TestConstants.ProjectId, TestConstants.StackId, utcNow.SubtractDays(1), utcNow.SubtractDays(1), 1);
 
             stack = await _repository.GetByIdAsync(TestConstants.StackId);
@@ -116,7 +116,7 @@ namespace Exceptionless.Tests.Repositories {
             Assert.Equal(utcNow.SubtractDays(1), stack.FirstOccurrence);
             Assert.Equal(utcNow, stack.LastOccurrence);
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             await _repository.IncrementEventCounterAsync(TestConstants.OrganizationId, TestConstants.ProjectId, TestConstants.StackId, utcNow.AddDays(1), utcNow.AddDays(1), 1);
 
             stack = await _repository.GetByIdAsync(TestConstants.StackId);
@@ -130,7 +130,7 @@ namespace Exceptionless.Tests.Repositories {
             Assert.Equal(0, await _repository.CountAsync());
             await _repository.AddAsync(StackData.GenerateSampleStacks());
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             var stacks = await _repository.GetByOrganizationIdAsync(TestConstants.OrganizationId, o => o.PageNumber(1).PageLimit(1));
             Assert.NotNull(stacks);
             Assert.Equal(3, stacks.Total);
@@ -148,7 +148,7 @@ namespace Exceptionless.Tests.Repositories {
 
             await _repository.RemoveAsync(stacks.Documents);
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.Equal(0, await _repository.CountAsync());
         }
     }

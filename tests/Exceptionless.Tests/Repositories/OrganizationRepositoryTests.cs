@@ -32,7 +32,7 @@ namespace Exceptionless.Tests.Repositories {
             Assert.Null(organization.Id);
 
             await _repository.AddAsync(organization);
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.NotNull(organization.Id);
 
             organization = await _repository.GetByIdAsync(organization.Id);
@@ -54,7 +54,7 @@ namespace Exceptionless.Tests.Repositories {
                 new Organization { Name = "Test Organization", PlanId = _plans.FreePlan.Id, RetentionDays = 2 }
             });
 
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.Equal(3, await _repository.CountAsync());
 
             var organizations = await _repository.GetByRetentionDaysEnabledAsync(o => o.PageNumber(1).PageLimit(1));
@@ -72,11 +72,11 @@ namespace Exceptionless.Tests.Repositories {
             Assert.Equal(2, organizations.Total);
 
             await _repository.RemoveAsync(organizations.Documents);
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
 
             Assert.Equal(1, await _repository.CountAsync());
             await _repository.RemoveAllAsync();
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
         }
 
         [Fact]
@@ -86,7 +86,7 @@ namespace Exceptionless.Tests.Repositories {
 
             Assert.Equal(0, _cache.Count);
             await _repository.AddAsync(organization, o => o.Cache());
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.NotNull(organization.Id);
             Assert.Equal(1, _cache.Count);
 
@@ -97,7 +97,7 @@ namespace Exceptionless.Tests.Repositories {
             Assert.Equal(1, _cache.Count);
 
             await _repository.RemoveAllAsync();
-            await _configuration.Client.RefreshAsync(Indices.All);
+            await _configuration.Client.Indices.RefreshAsync(Indices.All);
             Assert.Equal(0, _cache.Count);
         }
     }
