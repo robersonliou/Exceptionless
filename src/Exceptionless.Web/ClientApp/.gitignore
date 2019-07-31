@@ -1,0 +1,7 @@
+bower_components
+dist
+lib
+node_modules
+.sass-cache/
+results/
+.idea/

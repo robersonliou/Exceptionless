@@ -23,6 +23,7 @@ using Foundatio.Hosting.Startup;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 
 namespace Exceptionless.Web {
     public class Startup {
@@ -45,9 +46,10 @@ namespace Exceptionless.Web {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
                 options.RequireHeaderSymmetry = false;
             });
+
             services.AddMvc(o => {
                 o.Filters.Add(new CorsAuthorizationFilterFactory("AllowAny"));
-                o.Filters.Add<RequireHttpsExceptLocalAttribute>();
+               // o.Filters.Add<RequireHttpsExceptLocalAttribute>();
                 o.Filters.Add<ApiExceptionFilter>();
                 o.ModelBinderProviders.Insert(0, new CustomAttributesModelBinderProvider());
                 o.InputFormatters.Insert(0, new RawRequestBodyFormatter());
@@ -57,6 +59,10 @@ namespace Exceptionless.Web {
                 o.SerializerSettings.NullValueHandling = NullValueHandling.Include;
                 o.SerializerSettings.Formatting = Formatting.Indented;
                 o.SerializerSettings.ContractResolver = Core.Bootstrapper.GetJsonContractResolver(); // TODO: See if we can resolve this from the di.
+            });
+
+            services.AddSpaStaticFiles(c => {
+                c.RootPath = "ClientApp/dist";
             });
 
             services.AddAuthentication(ApiKeyAuthenticationOptions.ApiKeySchema).AddApiKeyAuthentication();
@@ -164,6 +170,7 @@ namespace Exceptionless.Web {
             app.UseStaticFiles(new StaticFileOptions {
                 ContentTypeProvider = contentTypeProvider
             });
+            app.UseSpaStaticFiles();
 
             app.Use(async (context, next) => {
                 if (context.Request.IsLocal() == false && options.AppMode != AppMode.Development)
@@ -187,7 +194,7 @@ namespace Exceptionless.Web {
 
             if (options.ApiThrottleLimit < Int32.MaxValue) {
                 // Throttle api calls to X every 15 minutes by IP address.
-                app.UseMiddleware<ThrottlingMiddleware>();
+                //app.UseMiddleware<ThrottlingMiddleware>();
             }
 
             // Reject event posts in organizations over their max event limits.
@@ -207,6 +214,16 @@ namespace Exceptionless.Web {
                 app.UseWebSockets();
                 app.UseMiddleware<MessageBusBrokerMiddleware>();
             }
+
+            app.UseSpa(spa => {
+                // To learn more about options for serving an Angular SPA from ASP.NET Core,
+                // see https://go.microsoft.com/fwlink/?linkid=864501
+
+                spa.Options.SourcePath = "ClientApp";
+                
+                if (options.AppMode == AppMode.Development)
+                    spa.UseProxyToSpaDevelopmentServer("http://localhost:5100");
+            });
         }
     }
 }

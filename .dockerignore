@@ -4,9 +4,13 @@ docker-compose*
 .gitignore
 README.md
 LICENSE.txt
-.vscode
 .circleci
 **/bin/
 **/obj/
 **/TestResult/
 **/out/
+**/.vscode
+**/.vs
+.dotnet
+**/node_modules
+**/bower_components

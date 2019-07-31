@@ -47,17 +47,6 @@ services:
     volumes:
       - appdata:/app/storage
 
-  ui:
-    image: exceptionless/ui-ci:latest
-    environment:
-      AppMode: Development
-      EX_ApiUrl: http://ex-api.localtest.me:5000
-      #EX_Html5Mode: 'false'
-      #EX_EnableSsl: 'false'
-      #EX_EnableAccountCreation: 'false'
-    ports:
-      - 5100:80
-
   elasticsearch:
     image: exceptionless/elasticsearch:1
     environment:

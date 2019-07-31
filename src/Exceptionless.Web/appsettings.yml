@@ -3,10 +3,10 @@ Serilog:
   Using:
   - Serilog.Sinks.Console
   MinimumLevel:
-    Default: Information
+    Default: Debug
     Override:
-      Microsoft: Warning
-      System: Warning
+      Microsoft: Debug
+      System: Debug
       Exceptionless.Web.Security.ApiKeyAuthenticationHandler: Warning
       Foundatio.Utility.ScheduledTimer: Warning
       Foundatio.Metrics: Warning
